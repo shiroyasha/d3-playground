@@ -25,17 +25,21 @@ var svg = d3.select("#chart");
 var colors = d3.scaleOrdinal().range(["#89b399", "#e39b7d", "#e8d3a9"]);
 
 var bars = svg
- .selectAll(".bar")
- .data(d3.stack().keys(["carbs", "proteins", "fats"])(DATA))
- .enter().append("g")
-   .attr("fill", function(d) { console.log(colors(d.key)); return colors(d.key); })
+  .selectAll("rect")
+  .data(DATA)
+  .enter()
+  .append("g")
+  .attr("transform", (d, index) => `translate(${index * BAR_WIDTH}, 0)`)
 
-bars
- .selectAll("rect")
- .data(function(d) { return d; })
- .enter().append("rect")
+var rects = bars
+  .selectAll("rect")
+  .data((d) => [[0, d.carbs], [d.carbs, d.proteins], [d.carbs + d.proteins, d.fats]])
+  .enter()
+  .append("rect")
+
+rects
    .attr("class", "bar")
-   .attr("x", function(d, index) { return index * BAR_WIDTH; })
-   .attr("y", function(d) { return 300 - d[1]/20; })
-   .attr("width", function(d) { console.log(d); return BAR_WIDTH - 1; })
-   .attr("height", function(d) { return d[1]/20 - d[0]/20; })
+   .attr("width", BAR_WIDTH - 1)
+   .attr("y", (d) => d[0]/20)
+   .attr("height", (d) => d[0]/20 + d[1]/20)
+   .attr("fill", (_, index) => colors(index))
